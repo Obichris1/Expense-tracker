@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "amount": 25000,
+    "status": "paid",
+    "description": "Website development payment",
+    "archivedAt": "2026-05-25T09:22:50.022Z"
+  },
+  {
+    "id": 2,
+    "amount": 12000,
+    "status": "paid",
+    "description": "Cloud hosting subscription",
+    "archivedAt": "2026-05-25T09:22:50.022Z"
+  },
+  {
+    "id": 3,
+    "amount": 4500,
+    "status": "paid",
+    "description": "Logo design invoice",
+    "archivedAt": "2026-05-25T09:22:50.022Z"
+  },
+  {
+    "id": 4,
+    "amount": 8000,
+    "status": "paid",
+    "description": "Database optimization service",
+    "archivedAt": "2026-05-25T09:22:50.022Z"
+  },
+  {
+    "id": 5,
+    "amount": 15000,
+    "status": "paid",
+    "description": "Mobile app UI redesign",
+    "archivedAt": "2026-05-25T09:22:50.022Z"
+  }
+]

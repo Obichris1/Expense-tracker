@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TransactionCategory {
+  FOOD
+  TRANSPORT
+  SHOPPING
+  BILLS
+  ENTERTAINMENT
+  HEALTH
+  EDUCATION
+  SALARY
+  INVESTMENT
+  TRANSFER
+  OTHER
+}
+
+enum AccountType {
+  SAVINGS
+  CURRENT
+  CASH
+  INVESTMENT
+}
+
+enum Currency {
+  NGN
+  USD
+  GBP
+  EUR
+}
+
+
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique @db.VarChar(120)
+  firstName    String    @db.VarChar(50)
+  lastName     String    @db.VarChar(50)
+  contact      String?   @db.VarChar(15)
+  password     String
+  provider     String?   @db.VarChar(10)
+  country      String?
+  refreshToken String?
+  currency     Currency  @default(NGN)          // ← changed from String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  accounts     Account[]
+  transactions Transaction[]
+  budget       Budget?
+}
+
+model Account {
+  id             Int         @id @default(autoincrement())
+  userId         Int
+  accountName    String      @db.VarChar(50)
+  accountNumber  String      @unique @db.VarChar(50)
+  accountBalance Decimal     @db.Decimal(10, 2)
+  type           AccountType @default(SAVINGS)   // ← added
+  currency       Currency    @default(NGN)        // ← added
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+}
+
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  accountId   Int
+
+  description String
+
+  status      String   @default("Pending") @db.VarChar(10)
+
+  source      String   @db.VarChar(100)
+
+  amount      Decimal  @db.Decimal(10, 2)
+
+  type        String   @default("income") @db.VarChar(10)
+
+  category    TransactionCategory @default(OTHER)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+}
+
+// model RefreshToken {
+//   id        Int      @id @default(autoincrement())
+//   token     String   @unique
+//   userId    Int
+//   createdAt DateTime @default(now())
+//   expiresAt DateTime?
+
+//   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+// }
+
+model Budget {
+  id             Int      @id @default(autoincrement())
+  userId         Int  @unique
+  name           String?
+  amount         Decimal
+  spent          Decimal  @default(0)
+  lastAlertSent  DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user           User     @relation(fields: [userId], references: [id])
+}

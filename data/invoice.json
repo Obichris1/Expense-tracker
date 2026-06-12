@@ -1,0 +1,14 @@
+[
+  {
+    "id": 6,
+    "amount": 6700,
+    "status": "pending",
+    "description": "API integration service"
+  },
+  {
+    "id": 7,
+    "amount": 9200,
+    "status": "pending",
+    "description": "Monthly maintenance retainer"
+  }
+]
