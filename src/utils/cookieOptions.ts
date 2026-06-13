@@ -2,10 +2,7 @@ import { CookieOptions } from "express"
 
 export const cookieOptions: CookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV !== "development",
-    sameSite:
-      process.env.NODE_ENV !== "development"
-        ? "none"
-        : "lax",
+    secure: true,        // MUST be true in production
+    sameSite: "none",    // REQUIRED for cross-site frontend/backend
     maxAge: 15 * 60 * 1000,
   };
