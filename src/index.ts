@@ -18,7 +18,7 @@ const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.PORT || 3000;
 
 const CLIENT_URL =
-  NODE_ENV === "production"
+  NODE_ENV !== "development"
     ? process.env.CLIENT_URL
     : "http://localhost:3001";
 
