@@ -38,14 +38,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv = __importStar(require("dotenv"));
 const express_1 = __importDefault(require("express"));
-const cookieParser = require("cookie-parser");
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const cors_1 = __importDefault(require("cors"));
 const routes_1 = __importDefault(require("./routes"));
 const express_2 = require("inngest/express");
 const inngest_1 = require("./inngest");
 const functions_1 = require("./inngest/functions");
-// require("./cron/cron")
 dotenv.config();
+// =========================
+// ENVIRONMENT SETUP
+// =========================
+const NODE_ENV = process.env.NODE_ENV || "development";
+const PORT = process.env.PORT || 3000;
+const CLIENT_URL = NODE_ENV === "production"
+    ? process.env.CLIENT_URL
+    : "http://localhost:3001";
+// =========================
+// ERROR HANDLERS
+// =========================
 process.on("uncaughtException", (error) => {
     console.error("Uncaught Exception:", error);
     process.exit(1);
@@ -54,22 +64,43 @@ process.on("unhandledRejection", (reason) => {
     console.error("Unhandled Rejection:", reason);
     process.exit(1);
 });
+// =========================
+// APP SETUP
+// =========================
 const app = (0, express_1.default)();
-app.use(cookieParser());
+app.use((0, cookie_parser_1.default)());
 app.use((0, cors_1.default)({
-    origin: "http://localhost:3001",
+    origin: CLIENT_URL,
     credentials: true,
 }));
 app.use(express_1.default.json());
+// =========================
+// ROUTES
+// =========================
 app.use("/api-v1", routes_1.default);
 app.use("/api/inngest", (0, express_2.serve)({ client: inngest_1.inngest, functions: functions_1.functions }));
-// 404 handler 
+// =========================
+// HEALTH CHECK (GOOD FOR PROD)
+// =========================
+app.get("/health", (req, res) => {
+    res.status(200).json({
+        status: "ok",
+        environment: NODE_ENV,
+    });
+});
+// =========================
+// 404 HANDLER
+// =========================
 app.use((req, res) => {
     res.status(404).json({
         success: false,
-        message: "Route not found"
+        message: "Route not found",
     });
 });
-app.listen(3000, () => {
-    console.log("Server running on port 3000");
+// =========================
+// START SERVER
+// =========================
+app.listen(PORT, () => {
+    console.log(`Server running in ${NODE_ENV} mode on port ${PORT}`);
+    console.log(`CORS enabled for: ${CLIENT_URL}`);
 });

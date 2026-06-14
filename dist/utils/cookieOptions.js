@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.cookieOptions = void 0;
 exports.cookieOptions = {
     httpOnly: true,
-    sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 15 * 60 * 1000, // 15 mins
+    secure: true, // MUST be true in production
+    sameSite: "none", // REQUIRED for cross-site frontend/backend
+    maxAge: 15 * 60 * 1000,
 };

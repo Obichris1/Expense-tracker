@@ -1,9 +1,7 @@
-import { Inngest } from "inngest";
+import { inngest } from ".";
 import { prisma } from "../config/db";
 import nodemailer from "nodemailer";
 
-// Create a client to send and receive events
-export const inngest = new Inngest({ id: "expense-tracker" });
 
 // ✅ Configure email service (adjust based on your email provider)
 const emailTransporter = nodemailer.createTransport({
