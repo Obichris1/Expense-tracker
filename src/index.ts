@@ -18,7 +18,7 @@ const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.PORT || 3000;
 
 const CLIENT_URL =
-  NODE_ENV !== "development"
+  NODE_ENV === "production"
     ? process.env.CLIENT_URL
     : "http://localhost:3001";
 
@@ -42,13 +42,25 @@ const app = express();
 
 app.use(cookieParser());
 
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:3001",
+];
+
 app.use(
   cors({
-    origin: CLIENT_URL,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   })
 );
-
 app.use(express.json());
 
 // =========================
