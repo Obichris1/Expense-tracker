@@ -5,12 +5,15 @@ import nodemailer from "nodemailer";
 
 // ✅ Configure email service (adjust based on your email provider)
 const emailTransporter = nodemailer.createTransport({
+  
   service: "gmail", // or your email service
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASSWORD, // Use app-specific password for Gmail
   },
 });
+
+
 
 // ✅ Alternative: Using SendGrid
 // import sgMail from "@sendgrid/mail";
@@ -26,6 +29,9 @@ const sendBudgetAlertEmail = async (
   percentageSpent: number
 ) => {
   try {
+    await emailTransporter.verify()
+    console.log("SMTP Ready");
+    
     const isExceeded = percentageSpent > 100;
     const subject = isExceeded 
       ? "⚠️ Budget Exceeded Alert" 

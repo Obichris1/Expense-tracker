@@ -43,7 +43,7 @@ export const authMiddleware = (
       token,
       process.env.JWT_SECRET as string
     ) as AuthPayload;
-
+    
     console.log(decoded);
     
 

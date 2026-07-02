@@ -105,15 +105,23 @@ export async function login(req: Request, res: Response) {
 }
 
 export async function logout(req: Request, res: Response) {
-  res.cookie("accessToken", "", {
-    httpOnly: true,
-    expires: new Date(0),
-  });
-
-  res.status(200).json({
-    status: "success",
-    message: "User logged out successfully",
-  });
+  try {
+    res.cookie("accessToken", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+  
+    res.status(200).json({
+      status: "success",
+      message: "User logged out successfully",
+    });
+  } catch (error) {
+    sendError(
+      res,
+      error instanceof Error ? error.message : "Something went wrong"
+    );
+  }
+ 
 }
 
 
