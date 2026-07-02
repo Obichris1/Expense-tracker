@@ -4,15 +4,9 @@ import nodemailer from "nodemailer";
 
 
 // ✅ Configure email service (adjust based on your email provider)
-const emailTransporter = nodemailer.createTransport({
-  
-  service: "gmail", // or your email service
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD, // Use app-specific password for Gmail
-  },
-});
+import { Resend } from "resend";
 
+const resend = new Resend(process.env.RESEND_API_KEY!);
 
 
 // ✅ Alternative: Using SendGrid
@@ -29,12 +23,10 @@ const sendBudgetAlertEmail = async (
   percentageSpent: number
 ) => {
   try {
-    await emailTransporter.verify()
-    console.log("SMTP Ready");
-    
     const isExceeded = percentageSpent > 100;
-    const subject = isExceeded 
-      ? "⚠️ Budget Exceeded Alert" 
+
+    const subject = isExceeded
+      ? "⚠️ Budget Exceeded Alert"
       : "⚠️ Budget Warning - Approaching Limit";
 
     const htmlContent = `
@@ -42,155 +34,121 @@ const sendBudgetAlertEmail = async (
       <html>
         <head>
           <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background-color: ${isExceeded ? '#dc2626' : '#ea580c'}; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
-            .content { background-color: #f9fafb; padding: 20px; border-radius: 0 0 8px 8px; }
-            .alert-box { 
-              background-color: ${isExceeded ? '#fee2e2' : '#fed7aa'}; 
-              border-left: 4px solid ${isExceeded ? '#dc2626' : '#ea580c'}; 
-              padding: 16px; 
-              margin: 20px 0; 
-              border-radius: 4px;
+            body {
+              font-family: Arial, sans-serif;
+              line-height: 1.6;
+              color: #333;
             }
-            .stats { 
-              display: flex; 
-              justify-content: space-around; 
-              margin: 20px 0; 
-              flex-wrap: wrap;
+
+            .container {
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 20px;
             }
-            .stat-box { 
-              background-color: white; 
-              padding: 15px; 
-              border-radius: 4px; 
-              text-align: center; 
-              flex: 1; 
-              min-width: 150px; 
-              margin: 5px;
+
+            .header {
+              background: ${isExceeded ? "#dc2626" : "#ea580c"};
+              color: white;
+              padding: 20px;
+              border-radius: 8px 8px 0 0;
             }
-            .stat-label { color: #666; font-size: 12px; text-transform: uppercase; }
-            .stat-value { font-size: 24px; font-weight: bold; color: #333; margin-top: 5px; }
-            .progress-bar { 
-              background-color: #e5e7eb; 
-              border-radius: 8px; 
-              height: 20px; 
-              overflow: hidden; 
-              margin: 20px 0;
+
+            .content {
+              background: #f9fafb;
+              padding: 20px;
             }
-            .progress-fill { 
-              height: 100%; 
-              background-color: ${
-                percentageSpent > 100 ? '#dc2626' : 
-                percentageSpent > 80 ? '#ea580c' : 
-                '#10b981'
-              }; 
-              width: ${Math.min(percentageSpent, 100)}%; 
-              display: flex; 
-              align-items: center; 
-              justify-content: center; 
-              color: white; 
-              font-size: 12px; 
-              font-weight: bold;
+
+            .button {
+              display: inline-block;
+              margin-top: 20px;
+              background: #2563eb;
+              color: white;
+              padding: 12px 24px;
+              text-decoration: none;
+              border-radius: 6px;
             }
-            .button { 
-              display: inline-block; 
-              background-color: #3b82f6; 
-              color: white; 
-              padding: 12px 24px; 
-              text-decoration: none; 
-              border-radius: 4px; 
-              margin: 20px 0;
-            }
-            .footer { 
-              text-align: center; 
-              color: #999; 
-              font-size: 12px; 
-              margin-top: 20px; 
-              padding-top: 20px; 
-              border-top: 1px solid #e5e7eb;
+
+            .footer {
+              margin-top: 30px;
+              color: #777;
+              font-size: 13px;
             }
           </style>
         </head>
+
         <body>
           <div class="container">
+
             <div class="header">
-              <h1 style="margin: 0;">Budget Alert</h1>
-              <p style="margin: 5px 0 0 0;">${isExceeded ? 'Your budget has been exceeded' : 'Your spending is approaching your budget limit'}</p>
+              <h2>Budget Alert</h2>
             </div>
-            
+
             <div class="content">
-              <p>Hi ${userName},</p>
-              
-              <p>We wanted to let you know about your budget status for <strong>"${budgetName}"</strong>.</p>
-              
-              <div class="alert-box">
-                <strong>${isExceeded ? '🚨 Budget Exceeded!' : '⚠️ Budget Warning'}</strong>
-                <p style="margin: 10px 0 0 0;">
-                  ${isExceeded 
-                    ? `You have spent ₦${spentAmount.toLocaleString('en-NG', { minimumFractionDigits: 2 })} out of your budget of ₦${budgetAmount.toLocaleString('en-NG', { minimumFractionDigits: 2 })}. You are ${(percentageSpent - 100).toFixed(1)}% over budget.`
-                    : `You have spent ₦${spentAmount.toLocaleString('en-NG', { minimumFractionDigits: 2 })} out of your budget of ₦${budgetAmount.toLocaleString('en-NG', { minimumFractionDigits: 2 })}. You are approaching your spending limit.`
-                  }
-                </p>
-              </div>
 
-              <div class="stats">
-                <div class="stat-box">
-                  <div class="stat-label">Budget Limit</div>
-                  <div class="stat-value">₦${budgetAmount.toLocaleString('en-NG', { maximumFractionDigits: 0 })}</div>
-                </div>
-                <div class="stat-box">
-                  <div class="stat-label">Amount Spent</div>
-                  <div class="stat-value">₦${spentAmount.toLocaleString('en-NG', { maximumFractionDigits: 0 })}</div>
-                </div>
-                <div class="stat-box">
-                  <div class="stat-label">Percentage Used</div>
-                  <div class="stat-value">${percentageSpent.toFixed(1)}%</div>
-                </div>
-              </div>
-
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: ${Math.min(percentageSpent, 100)}%">
-                  ${Math.min(percentageSpent, 100).toFixed(0)}%
-                </div>
-              </div>
+              <p>Hello ${userName},</p>
 
               <p>
-                ${isExceeded 
-                  ? 'Consider reviewing your expenses and adjusting your spending to avoid further overspending.'
-                  : 'You\'re getting close to your budget limit. Consider reviewing your recent expenses.'
-                }
+                Your budget <strong>${budgetName}</strong> has reached
+                <strong>${percentageSpent.toFixed(1)}%</strong>.
               </p>
 
-              <a href="${process.env.APP_URL || 'http://localhost:3000'}/dashboard" class="button">
-                View Dashboard
+              <p>
+                <strong>Budget:</strong>
+                ₦${budgetAmount.toLocaleString("en-NG")}
+              </p>
+
+              <p>
+                <strong>Spent:</strong>
+                ₦${spentAmount.toLocaleString("en-NG")}
+              </p>
+
+              ${
+                isExceeded
+                  ? `<p style="color:#dc2626;font-weight:bold;">
+                     You have exceeded your budget.
+                   </p>`
+                  : `<p style="color:#ea580c;font-weight:bold;">
+                     You're approaching your budget limit.
+                   </p>`
+              }
+
+              <a
+                class="button"
+                href="${process.env.APP_URL}/dashboard"
+              >
+                Open Dashboard
               </a>
 
               <div class="footer">
-                <p>This is an automated message. Please do not reply to this email.</p>
-                <p>If you need help, visit our support page.</p>
+                Expense Tracker
               </div>
+
             </div>
           </div>
         </body>
       </html>
     `;
 
-    // Send email using Nodemailer
-    await emailTransporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: "obichris202@gmail.com",
+    const { error } = await resend.emails.send({
+      from: "Expense Tracker <onboarding@resend.dev>",
+      to: email,
       subject,
       html: htmlContent,
     });
 
-    console.log(`✅ Budget alert email sent to ${email}`);
+    if (error) {
+      console.error(error);
+      return false;
+    }
+
+    console.log(`✅ Budget alert sent to ${email}`);
+
     return true;
   } catch (error) {
-    console.error("❌ Failed to send budget alert email:", error);
+    console.error("❌ Failed to send budget alert:", error);
     return false;
   }
 };
-
 // ✅ Alternative: SendGrid implementation
 // const sendBudgetAlertEmailSendGrid = async (...) => {
 //   try {
@@ -211,7 +169,7 @@ const checkBudgetAlerts = inngest.createFunction(
     id: "check-budget-alerts",
     triggers: [
       {
-        cron: "0 * * * *", // Every hour
+        cron: "*/10 * * * *", // Every hour
       },
     ],
   },
@@ -312,7 +270,7 @@ const checkBudgetAlerts = inngest.createFunction(
       const skippedCount = emailResults.filter((r) => r.status === "skipped").length;
 
       console.log(
-        `✅ Budget alert check completed - Sent: ${successCount}, Failed: ${failedCount}, Skipped: ${skippedCount}`
+        ` Budget alert check completed - Sent: ${successCount}, Failed: ${failedCount}, Skipped: ${skippedCount}`
       );
 
       return {
@@ -555,12 +513,16 @@ const dailyBudgetDigest = inngest.createFunction(
             `;
 
             try {
-              await emailTransporter.sendMail({
-                from: process.env.EMAIL_USER,
-                to: "obichris202@gmail.com",
+              const { error } = await resend.emails.send({
+                from: "Expense Tracker <onboarding@resend.dev>",
+                to: budget.user.email,
                 subject: "Daily Budget Summary",
                 html: htmlContent,
               });
+              
+              if (error) {
+                throw error;
+              }
 
               return {
                 userId: budget.user.id,

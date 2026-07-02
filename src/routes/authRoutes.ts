@@ -1,3 +1,5 @@
+console.log("Loaded:", __filename);
+
 import express from "express";
 import { login, register,logout } from "../controllers/authController";
 
