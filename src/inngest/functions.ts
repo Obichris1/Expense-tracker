@@ -169,7 +169,7 @@ const checkBudgetAlerts = inngest.createFunction(
     id: "check-budget-alerts",
     triggers: [
       {
-        cron: "*/10 * * * *", // Every hour
+        cron: "0 8 * * *", // Every hour
       },
     ],
   },
@@ -416,7 +416,7 @@ const dailyBudgetDigest = inngest.createFunction(
     id: "daily-budget-digest",
     triggers: [
       {
-        cron: "15 20 * * *", // Every day at 8 AM
+        cron: "0 8 * * *", // Every day at 8 AM
       },
     ],
   },
