@@ -416,7 +416,7 @@ const dailyBudgetDigest = inngest.createFunction(
     id: "daily-budget-digest",
     triggers: [
       {
-        cron: "15 17 * * *", // Every day at 8 AM
+        cron: "15 20 * * *", // Every day at 8 AM
       },
     ],
   },
