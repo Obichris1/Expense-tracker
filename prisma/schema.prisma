@@ -42,6 +42,13 @@ enum Currency {
   EUR
 }
 
+ 
+enum ChatRole {
+  user
+  model
+}
+ 
+
 
 model User {
   id           Int       @id @default(autoincrement())
@@ -59,6 +66,8 @@ model User {
 
   accounts     Account[]
   transactions Transaction[]
+   conversations Conversation[]   // ← add
+  memoryFacts   MemoryFact[] 
   budget       Budget?
 }
 
@@ -123,4 +132,41 @@ model Budget {
   updatedAt      DateTime @updatedAt
 
   user           User     @relation(fields: [userId], references: [id])
+}
+
+model Conversation {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  title     String?  @db.VarChar(60)   // auto-set from the first user message
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+ 
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages ChatMessage[]
+ 
+  @@index([userId, updatedAt])
+}
+ 
+model ChatMessage {
+  id             Int      @id @default(autoincrement())
+  conversationId Int
+  role           ChatRole
+  parts          Json     // raw Content.parts — preserves functionCall/functionResponse turns
+  createdAt      DateTime @default(now())
+ 
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+ 
+  @@index([conversationId, id])
+}
+ 
+model MemoryFact {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  content   String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@unique([userId, content]) // dedupes repeated facts
+  @@index([userId])
 }

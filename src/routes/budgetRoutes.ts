@@ -1,14 +1,14 @@
 import express from "express"
 import { authMiddleware } from "../middlewares/authMiddleware"
-import { budgetController } from "../controllers/budgetController"
+import { getBudget,upsertBudget,deleteBudget } from "../controllers/budgetController"
 
 
 
 const router = express.Router()
 
-router.post("/", authMiddleware, budgetController.upsertBudget);
-router.get("/", authMiddleware, budgetController.getBudget);
-router.delete("/", authMiddleware, budgetController.deleteBudget);
+router.post("/", authMiddleware, upsertBudget);
+router.get("/", authMiddleware, getBudget);
+router.delete("/", authMiddleware, deleteBudget);
 
 
 
